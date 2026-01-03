@@ -1,0 +1,26 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Runs every 14 minutes
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Backend
+        run: |
+          echo "🤖 Pinging backend..."
+
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://portfolio-backend-iiim.onrender.com)
+
+          echo "HTTP Status: $response"
+
+          if [ "$response" -eq 200 ]; then
+            echo "✅ Backend is alive!"
+          else
+            echo "⚠️ Backend responded with status: $response"
+          fi

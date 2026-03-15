@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write          # ← fixes exit code 128 / git push failure
+  contents: write
 
 concurrency:
   group: keep-alive
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}   # ← also needed for push
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Ping Backend
         run: |
@@ -35,8 +35,7 @@ jobs:
           if [ "$response" -eq 200 ]; then
             echo "✅ Backend is alive!"
           else
-            echo "⚠️ Backend responded with status: $response"
-            exit 1
+            echo "⚠️ Backend responded with: $response (still keeping repo active)"
           fi
 
       - name: Keep repo active

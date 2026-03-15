@@ -5,12 +5,19 @@ on:
     - cron: '*/14 * * * *'
   workflow_dispatch:
 
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 5          # ← prevents infinite hang
+    timeout-minutes: 5
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Ping Backend
         run: |
           echo "🤖 Pinging backend..."
@@ -29,3 +36,12 @@ jobs:
             echo "⚠️ Backend responded with status: $response"
             exit 1
           fi
+
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "Last ping: $(date -u)" > last-ping.txt
+          git add last-ping.txt
+          git diff --staged --quiet || git commit -m "chore: keep alive $(date -u +%Y-%m-%d)"
+          git push
